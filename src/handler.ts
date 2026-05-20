@@ -51,8 +51,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   if (!secret || !botToken || !channel) {
     return json(500, { error: 'missing required env' });
   }
+  if (!bucket) console.warn('SPRITE_BUCKET is not set — race.ended messages will post without the winner sprite');
 
-  const rawBody = event.body ?? '';
+  const rawBody = event.isBase64Encoded
+    ? Buffer.from(event.body ?? '', 'base64').toString('utf8')
+    : (event.body ?? '');
   const sigHeader = header(event.headers, 'x-token-derby-signature');
   const deliveryId = header(event.headers, 'x-token-derby-delivery') ?? 'unknown';
   const eventType = header(event.headers, 'x-token-derby-event') ?? 'unknown';

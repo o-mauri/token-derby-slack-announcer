@@ -192,6 +192,31 @@ describe('handler', () => {
     expect(payload.blocks.find((b: any) => b.type === 'image')).toBeUndefined();
   });
 
+  it('decodes a base64-encoded body before HMAC verification', async () => {
+    const startedSlack = await startMock(() => ({ status: 200, body: JSON.stringify({ ok: true }) }));
+    slack = startedSlack.server;
+    process.env.SLACK_API_BASE = startedSlack.url;
+
+    const encoded = Buffer.from(CREATED_BODY, 'utf8').toString('base64');
+    const res: any = await handler({
+      version: '2.0',
+      routeKey: 'POST /webhook',
+      rawPath: '/webhook',
+      rawQueryString: '',
+      headers: {
+        'x-token-derby-event': 'race.created',
+        'x-token-derby-delivery': 'd-1',
+        // Signature is over the DECODED body — that's what token-derby HMAC'd.
+        'x-token-derby-signature': sign(CREATED_BODY),
+      },
+      requestContext: {} as any,
+      body: encoded,
+      isBase64Encoded: true,
+    });
+    expect(res.statusCode).toBe(200);
+    expect(startedSlack.calls).toHaveLength(1);
+  });
+
   it('returns 200 ignored for an unknown event type', async () => {
     const startedSlack = await startMock(() => ({ status: 200, body: JSON.stringify({ ok: true }) }));
     slack = startedSlack.server;

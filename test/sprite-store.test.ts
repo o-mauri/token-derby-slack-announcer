@@ -88,4 +88,19 @@ describe('ensureSprite', () => {
     expect(methods).toContain('HEAD');
     expect(methods).not.toContain('PUT');
   });
+
+  it('PUTs when HEAD returns 403 (treated as missing)', async () => {
+    const started = await startMockS3((req) => {
+      if (req.method === 'HEAD') return { status: 403 };
+      if (req.method === 'PUT')  return { status: 200 };
+      return { status: 405 };
+    });
+    server = started.server;
+    const client = makeClient(started.url);
+    const url = await ensureSprite(client, 'my-bucket', COLORS);
+    expect(url).toMatch(/^https:\/\/my-bucket\.s3\.eu-west-1\.amazonaws\.com\/winners\/[0-9a-f]{40}\.png$/);
+    const methods = started.calls.map(c => c.method);
+    expect(methods).toContain('HEAD');
+    expect(methods).toContain('PUT');
+  });
 });
