@@ -25,13 +25,12 @@ export function buildRaceCreatedMessage(event: RaceCreatedEvent): SlackMessage {
   const { race, organisation } = event;
   const sectionText =
     `*"${race.name}"*  ·  _${organisation.org_name}_\n\n` +
-    `🔑  *Join code:* \`${race.join_code}\`\n` +
     `⏰  *Starts:* ${formatRaceTime(race.start_time, race.tz)}\n` +
     `🏁  *Ends:*    ${formatRaceTime(race.end_time,   race.tz)}\n\n` +
     `May the fastest horse win! 🐎`;
 
   return {
-    text: `New race starting in Token Derby: ${race.name}`,
+    text: `New race starting in Token Derby: ${race.name} — join code ${race.join_code}`,
     blocks: [
       {
         type: 'header',
@@ -40,6 +39,11 @@ export function buildRaceCreatedMessage(event: RaceCreatedEvent): SlackMessage {
       {
         type: 'section',
         text: { type: 'mrkdwn', text: sectionText },
+      },
+      { type: 'divider' },
+      {
+        type: 'header',
+        text: { type: 'plain_text', text: `🔑  JOIN CODE: ${race.join_code}`, emoji: true },
       },
     ],
   };

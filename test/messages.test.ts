@@ -34,15 +34,21 @@ describe('buildRaceCreatedMessage', () => {
   it('returns a header + section block with race details', () => {
     const msg = buildRaceCreatedMessage(CREATED);
     expect(msg.text).toContain('Friday Sprint');
+    expect(msg.text).toContain('AB7XQ2');
     expect(msg.blocks[0]!.type).toBe('header');
     expect((msg.blocks[0] as any).text.text).toContain('A new Race is starting');
     const sectionText = (msg.blocks[1] as any).text.text as string;
     expect(sectionText).toContain('Friday Sprint');
     expect(sectionText).toContain('TeamFoo');
-    expect(sectionText).toContain('AB7XQ2');
     expect(sectionText).toMatch(/Starts:.*2026/);
     expect(sectionText).toMatch(/Ends:.*2026/);
     expect(sectionText).not.toContain('Created by');
+    expect(sectionText).not.toContain('AB7XQ2');
+    // Join code lives in its own large header at the bottom.
+    const lastBlock = msg.blocks[msg.blocks.length - 1] as any;
+    expect(lastBlock.type).toBe('header');
+    expect(lastBlock.text.text).toContain('JOIN CODE: AB7XQ2');
+    expect(msg.blocks.some(b => b.type === 'divider')).toBe(true);
   });
 });
 
