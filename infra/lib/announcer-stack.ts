@@ -39,6 +39,8 @@ export class TokenDerbySlackAnnouncerStack extends cdk.Stack {
     const fn = new NodejsFunction(this, 'AnnouncerFn', {
       runtime: lambda.Runtime.NODEJS_22_X,
       entry: path.resolve(__dirname, '..', '..', 'src', 'handler.ts'),
+      projectRoot: path.resolve(__dirname, '..', '..'),
+      depsLockFilePath: path.resolve(__dirname, '..', '..', 'package-lock.json'),
       handler: 'handler',
       timeout: cdk.Duration.seconds(5),
       memorySize: 256,
