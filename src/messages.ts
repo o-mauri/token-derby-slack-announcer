@@ -42,8 +42,12 @@ export function buildRaceCreatedMessage(event: RaceCreatedEvent): SlackMessage {
       },
       { type: 'divider' },
       {
+        type: 'section',
+        text: { type: 'mrkdwn', text: 'Join code:' },
+      },
+      {
         type: 'header',
-        text: { type: 'plain_text', text: `🔑  JOIN CODE: ${race.join_code}`, emoji: true },
+        text: { type: 'plain_text', text: `🔑  ${race.join_code}`, emoji: true },
       },
     ],
   };

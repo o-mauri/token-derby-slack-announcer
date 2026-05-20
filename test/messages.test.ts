@@ -44,10 +44,15 @@ describe('buildRaceCreatedMessage', () => {
     expect(sectionText).toMatch(/Ends:.*2026/);
     expect(sectionText).not.toContain('Created by');
     expect(sectionText).not.toContain('AB7XQ2');
-    // Join code lives in its own large header at the bottom.
+    // Join code lives in its own large header at the bottom, with a
+    // non-bold "Join code:" label in a section above it.
     const lastBlock = msg.blocks[msg.blocks.length - 1] as any;
     expect(lastBlock.type).toBe('header');
-    expect(lastBlock.text.text).toContain('JOIN CODE: AB7XQ2');
+    expect(lastBlock.text.text).toMatch(/AB7XQ2/);
+    expect(lastBlock.text.text).not.toMatch(/Join code/i);
+    const label = msg.blocks[msg.blocks.length - 2] as any;
+    expect(label.type).toBe('section');
+    expect(label.text.text).toBe('Join code:');
     expect(msg.blocks.some(b => b.type === 'divider')).toBe(true);
   });
 });
