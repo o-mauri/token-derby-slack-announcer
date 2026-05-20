@@ -48,8 +48,10 @@ All three are set in CDK as `lambda.Function` env vars. AWS encrypts
 Lambda env vars at rest. No SSM, no Secrets Manager — this is a personal
 project and the cost-of-loss is one Slack channel.
 
-A `cdk.context.json` (gitignored) holds the actual values used at deploy.
-A `cdk.context.example.json` checked into git documents the shape.
+Values are read from a local `.env` file (gitignored) at deploy time and
+injected into the stack via CDK context. A `.env.example` checked into
+git documents the shape. `cdk.context.json` is reserved for CDK's own
+lookup cache.
 
 ## Request flow
 
@@ -195,7 +197,7 @@ token-derby-slack-announcer/
 ├── vitest.config.ts
 ├── README.md
 ├── .gitignore
-├── cdk.context.example.json
+├── .env.example
 ├── src/
 │   ├── handler.ts          // Lambda entry, orchestrates the flow
 │   ├── verify.ts           // HMAC verification (timingSafeEqual)
@@ -252,10 +254,11 @@ No live Slack calls in CI.
 
 ## Deployment
 
-1. Fill `cdk.context.json` with the three secrets and the channel ID.
+1. Copy `.env.example` to `.env` and fill the three values. (The
+   token-derby `WEBHOOK_SECRET` is the one printed by
+   `token-derby organisation webhook set` — see step 4.)
 2. `npm run build` (compiles TypeScript and the CDK stack).
-3. `npm run deploy` (wraps `cdk deploy` from `infra/`).
+3. `npm run deploy` (wraps `cdk deploy` from `infra/`, sources `.env`).
 4. Copy the printed API URL into
-   `token-derby organisation webhook set <org-name> <url>`.
-5. Save the printed token-derby secret as `WEBHOOK_SECRET` in
-   `cdk.context.json` and redeploy.
+   `token-derby organisation webhook set <org-name> <url>`. Save the
+   printed `webhook_secret` as `WEBHOOK_SECRET` in `.env` and redeploy.
