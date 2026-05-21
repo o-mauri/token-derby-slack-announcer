@@ -1,0 +1,38 @@
+{
+  "text": "New race starting in Token Derby: Friday Sprint — join code AB7XQ2",
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "🏇  A new Race is starting in Token Derby!",
+        "emoji": true
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*\"Friday Sprint\"*  ·  _TeamFoo_\n\n⏰  *Starts:* Thu, 21 May 2026, 18:00 BST\n🏁  *Ends:*    Thu, 21 May 2026, 18:30 BST\n\nMay the fastest horse win! 🐎"
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "Join code:"
+      }
+    },
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "🔑  AB7XQ2",
+        "emoji": true
+      }
+    }
+  ]
+}

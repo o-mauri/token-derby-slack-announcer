@@ -1,0 +1,25 @@
+{
+  "text": "Race finished: Friday Sprint — winner Bolt",
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "🏁  The Race has finished!",
+        "emoji": true
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*\"Friday Sprint\"*  ·  _TeamFoo_\n\n🥇  1.  *Bolt*  187 tokens  ·  Omar\n🥈  2.  *Storm*  142 tokens  ·  Jess\n🥉  3.  *Spark*  98 tokens  ·  Kai\n    4.  *Drift*  44 tokens  ·  Sam\n\n🎉  Congrats to *Bolt*!"
+      }
+    },
+    {
+      "type": "image",
+      "image_url": "https://your-bucket.s3.eu-west-1.amazonaws.com/winners/ff358ce77ecddad47c49c1c83739b5b6a29cde72.png",
+      "alt_text": "Bolt — winning horse"
+    }
+  ]
+}
