@@ -80,7 +80,7 @@ export class TokenDerbySlackAnnouncerStack extends cdk.Stack {
         SLACK_BOT_TOKEN:       props.slackBotToken,
         SLACK_CHANNEL_ID:      props.slackChannelId,
         TOKEN_DERBY_ORG_NAME:  props.tokenDerbyOrgName,
-        TOKEN_DERBY_API_BASE:  props.tokenDerbyApiBase ?? 'https://token-derby.mauricode.co.uk',
+        ...(props.tokenDerbyApiBase ? { TOKEN_DERBY_API_BASE: props.tokenDerbyApiBase } : {}),
         NODE_OPTIONS:          '--enable-source-maps',
       },
     });
