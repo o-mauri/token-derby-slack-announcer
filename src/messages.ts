@@ -24,6 +24,7 @@ function formatRaceTime(iso: string, tz: string): string {
 export function buildRaceCreatedMessage(event: RaceCreatedEvent): SlackMessage {
   const { race, organisation } = event;
   const sectionText =
+    `<!here>\n\n` +
     `*"${race.name}"*  ·  _${organisation.org_name}_\n\n` +
     `⏰  *Starts:* ${formatRaceTime(race.start_time, race.tz)}\n` +
     `🏁  *Ends:*    ${formatRaceTime(race.end_time,   race.tz)}\n\n` +
@@ -65,7 +66,7 @@ function leaderboardLine(r: RaceEndedResult): string {
 
 export function buildRaceEndedMessage(event: RaceEndedEvent, spriteUrl?: string): SlackMessage {
   const { race, organisation, results } = event;
-  const header = `*"${race.name}"*  ·  _${organisation.org_name}_`;
+  const header = `<!here>\n\n*"${race.name}"*  ·  _${organisation.org_name}_`;
   const winner = results[0];
 
   let body: string;
