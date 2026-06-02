@@ -27,6 +27,10 @@ export const handler: ScheduledHandler = async () => {
   }
 
   const msg = buildWeeklyLeaderboardMessage(data);
-  const result = await postSlackMessage(botToken, channel, msg.text, msg.blocks);
-  if (!result.ok) console.warn('weekly job: slack post failed', { error: result.error });
+  try {
+    const result = await postSlackMessage(botToken, channel, msg.text, msg.blocks);
+    if (!result.ok) console.warn('weekly job: slack post failed', { error: result.error });
+  } catch (err) {
+    console.warn('weekly job: slack post threw', { error: err instanceof Error ? err.message : String(err) });
+  }
 };

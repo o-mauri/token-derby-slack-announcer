@@ -83,6 +83,18 @@ describe('weekly handler', () => {
     expect(started.calls.find(c => c.url.includes('chat.postMessage'))).toBeUndefined();
   });
 
+  it('does not post when the leaderboard fetch fails', async () => {
+    const started = await startMock({ status: 500, body: JSON.stringify({ error: 'boom' }) });
+    server = started.server;
+    process.env.TOKEN_DERBY_API_BASE = started.url;
+    process.env.SLACK_API_BASE = `${started.url}/api`;
+
+    await handler({} as any, {} as any, () => {});
+
+    expect(started.calls.find(c => c.url.includes('/leaderboard'))).toBeTruthy(); // it tried
+    expect(started.calls.find(c => c.url.includes('chat.postMessage'))).toBeUndefined(); // but did not post
+  });
+
   it('does nothing when required env is missing', async () => {
     delete process.env.SLACK_BOT_TOKEN;
     const started = await startMock({ status: 200, body: JSON.stringify(HORSES) });

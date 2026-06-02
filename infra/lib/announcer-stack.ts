@@ -87,7 +87,9 @@ export class TokenDerbySlackAnnouncerStack extends cdk.Stack {
 
     // Role EventBridge Scheduler assumes to invoke the weekly function.
     const schedulerRole = new iam.Role(this, 'WeeklySchedulerRole', {
-      assumedBy: new iam.ServicePrincipal('scheduler.amazonaws.com'),
+      assumedBy: new iam.ServicePrincipal('scheduler.amazonaws.com', {
+        conditions: { StringEquals: { 'aws:SourceAccount': this.account } },
+      }),
     });
     weeklyFn.grantInvoke(schedulerRole);
 
@@ -99,6 +101,7 @@ export class TokenDerbySlackAnnouncerStack extends cdk.Stack {
       target: {
         arn: weeklyFn.functionArn,
         roleArn: schedulerRole.roleArn,
+        retryPolicy: { maximumRetryAttempts: 2 },
       },
     });
 

@@ -89,6 +89,13 @@ describe('buildWeeklyLeaderboardMessage', () => {
     expect(winsSection).not.toContain('3.');
   });
 
+  it('subtitle states the stats are all-time, not weekly', () => {
+    const msg = buildWeeklyLeaderboardMessage(resp([h('A', 1, 1, 1)]));
+    const subtitle = (msg.blocks[1] as any).text.text as string;
+    expect(subtitle).toContain('all-time');
+    expect(subtitle).not.toContain('this week');
+  });
+
   it('breaks win ties by podiums then xp then name', () => {
     const msg = buildWeeklyLeaderboardMessage(resp([
       h('Zed', 5, 1, 10),
