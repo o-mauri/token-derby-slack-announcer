@@ -7,11 +7,14 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import { HttpApi, HttpMethod } from 'aws-cdk-lib/aws-apigatewayv2';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import * as path from 'path';
+import * as scheduler from 'aws-cdk-lib/aws-scheduler';
 
 export interface TokenDerbySlackAnnouncerStackProps extends cdk.StackProps {
   webhookSecret: string;
   slackBotToken: string;
   slackChannelId: string;
+  tokenDerbyOrgName: string;
+  tokenDerbyApiBase?: string;
 }
 
 export class TokenDerbySlackAnnouncerStack extends cdk.Stack {
@@ -59,6 +62,45 @@ export class TokenDerbySlackAnnouncerStack extends cdk.Stack {
     });
 
     spriteBucket.grantReadWrite(fn);
+
+    const weeklyFn = new NodejsFunction(this, 'WeeklyAnnouncerFn', {
+      runtime: lambda.Runtime.NODEJS_22_X,
+      entry: path.resolve(__dirname, '..', '..', 'src', 'weekly.ts'),
+      projectRoot: path.resolve(__dirname, '..', '..'),
+      depsLockFilePath: path.resolve(__dirname, '..', '..', 'package-lock.json'),
+      handler: 'handler',
+      timeout: cdk.Duration.seconds(15),
+      memorySize: 256,
+      bundling: {
+        target: 'node22',
+        sourceMap: true,
+        externalModules: ['@aws-sdk/*'],
+      },
+      environment: {
+        SLACK_BOT_TOKEN:       props.slackBotToken,
+        SLACK_CHANNEL_ID:      props.slackChannelId,
+        TOKEN_DERBY_ORG_NAME:  props.tokenDerbyOrgName,
+        TOKEN_DERBY_API_BASE:  props.tokenDerbyApiBase ?? 'https://token-derby.mauricode.co.uk',
+        NODE_OPTIONS:          '--enable-source-maps',
+      },
+    });
+
+    // Role EventBridge Scheduler assumes to invoke the weekly function.
+    const schedulerRole = new iam.Role(this, 'WeeklySchedulerRole', {
+      assumedBy: new iam.ServicePrincipal('scheduler.amazonaws.com'),
+    });
+    weeklyFn.grantInvoke(schedulerRole);
+
+    // Friday 15:00 Europe/London (DST-aware via EventBridge Scheduler).
+    new scheduler.CfnSchedule(this, 'WeeklyLeaderboardSchedule', {
+      flexibleTimeWindow: { mode: 'OFF' },
+      scheduleExpression: 'cron(0 15 ? * FRI *)',
+      scheduleExpressionTimezone: 'Europe/London',
+      target: {
+        arn: weeklyFn.functionArn,
+        roleArn: schedulerRole.roleArn,
+      },
+    });
 
     const httpApi = new HttpApi(this, 'AnnouncerApi', { apiName: 'token-derby-slack-announcer' });
     httpApi.addRoutes({

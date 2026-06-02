@@ -12,7 +12,7 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-const required = ['WEBHOOK_SECRET', 'SLACK_BOT_TOKEN', 'SLACK_CHANNEL_ID'] as const;
+const required = ['WEBHOOK_SECRET', 'SLACK_BOT_TOKEN', 'SLACK_CHANNEL_ID', 'TOKEN_DERBY_ORG_NAME'] as const;
 for (const k of required) {
   if (!process.env[k]) {
     console.error(`Missing required env var ${k} (check .env in project root)`);
@@ -29,4 +29,6 @@ new TokenDerbySlackAnnouncerStack(app, 'TokenDerbySlackAnnouncerStack', {
   webhookSecret: process.env.WEBHOOK_SECRET!,
   slackBotToken: process.env.SLACK_BOT_TOKEN!,
   slackChannelId: process.env.SLACK_CHANNEL_ID!,
+  tokenDerbyOrgName: process.env.TOKEN_DERBY_ORG_NAME!,
+  tokenDerbyApiBase: process.env.TOKEN_DERBY_API_BASE,
 });
