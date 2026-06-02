@@ -1,4 +1,4 @@
-import type { RaceCreatedEvent, RaceEndedEvent, RaceEndedResult } from './types.js';
+import type { RaceCreatedEvent, RaceEndedEvent, RaceEndedResult, LeaderboardEntry, GetOrgLeaderboardResponse } from './types.js';
 
 export type SlackMessage = {
   text: string;
@@ -101,4 +101,57 @@ export function buildRaceEndedMessage(event: RaceEndedEvent, spriteUrl?: string)
     : `Race finished: ${race.name}`;
 
   return { text, blocks };
+}
+
+type Metric = 'wins' | 'podiums' | 'xp';
+
+// Sort a copy of the horses by `primary` desc, breaking ties with the other
+// two metrics (desc) and finally by name (asc) for total determinism.
+function rankBy(horses: LeaderboardEntry[], primary: Metric): LeaderboardEntry[] {
+  const order: Record<Metric, Metric[]> = {
+    wins:    ['wins', 'podiums', 'xp'],
+    podiums: ['podiums', 'wins', 'xp'],
+    xp:      ['xp', 'wins', 'podiums'],
+  };
+  const keys = order[primary];
+  return [...horses].sort((a, b) => {
+    for (const k of keys) {
+      if (b[k] !== a[k]) return b[k] - a[k];
+    }
+    return a.name.localeCompare(b.name);
+  });
+}
+
+function categorySection(title: string, horses: LeaderboardEntry[], metric: Metric, unit: string): any {
+  const top = rankBy(horses, metric).slice(0, 5);
+  const lines = top.map((h, i) => {
+    const rank = i + 1;
+    return `${rankPrefix(rank)}  ${rank}.  *${h.name}*  ${h[metric]} ${unit}  ·  ${h.owner_name}`;
+  });
+  return {
+    type: 'section',
+    text: { type: 'mrkdwn', text: `*${title}*\n${lines.join('\n')}` },
+  };
+}
+
+export function buildWeeklyLeaderboardMessage(data: GetOrgLeaderboardResponse): SlackMessage {
+  const blocks: any[] = [
+    {
+      type: 'header',
+      text: { type: 'plain_text', text: '🏇  Weekly Stable Leaderboard', emoji: true },
+    },
+    {
+      type: 'section',
+      text: { type: 'mrkdwn', text: `_${data.org_name}_  ·  top horses this week` },
+    },
+    { type: 'divider' },
+    categorySection('🏆  Most Wins', data.horses, 'wins', 'wins'),
+    categorySection('🥈  Most Podiums', data.horses, 'podiums', 'podiums'),
+    categorySection('⭐  Most XP', data.horses, 'xp', 'XP'),
+  ];
+
+  return {
+    text: `Weekly leaderboard for ${data.org_name}`,
+    blocks,
+  };
 }
