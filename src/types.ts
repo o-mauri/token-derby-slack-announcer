@@ -40,3 +40,17 @@ export type RaceEndedEvent = {
   };
   results: RaceEndedResult[];
 };
+
+export type LeaderboardEntry = {
+  name: string;
+  owner_name: string;
+  wins: number;
+  podiums: number;
+  xp: number;
+  races_entered: number;
+};
+
+export type GetOrgLeaderboardResponse = {
+  org_name: string;
+  horses: LeaderboardEntry[];
+};
