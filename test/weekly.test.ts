@@ -65,8 +65,11 @@ describe('weekly handler', () => {
     const slack = started.calls.find(c => c.url.includes('chat.postMessage'));
     expect(lb).toBeTruthy();
     expect(slack).toBeTruthy();
-    expect(slack!.body).toContain('Weekly');
-    expect(slack!.body).toContain('Bolt');
+    const payload = JSON.parse(slack!.body);
+    expect(payload.text).toContain('Weekly leaderboard');
+    expect(payload.text).toContain('TeamFoo');
+    expect(slack!.body).toContain('Bolt'); // horse name appears in the rendered blocks
+    expect(started.calls).toHaveLength(2); // exactly one leaderboard GET + one Slack POST
   });
 
   it('skips Slack when the org has no horses', async () => {
