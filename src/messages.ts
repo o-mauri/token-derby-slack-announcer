@@ -130,7 +130,7 @@ function categorySection(title: string, horses: LeaderboardEntry[], metric: Metr
   });
   return {
     type: 'section',
-    text: { type: 'mrkdwn', text: `*${title}*\n${lines.join('\n')}` },
+    text: { type: 'mrkdwn', text: `*${title}*\n\n${lines.join('\n')}` },
   };
 }
 
@@ -145,9 +145,11 @@ export function buildWeeklyLeaderboardMessage(data: GetOrgLeaderboardResponse): 
       text: { type: 'mrkdwn', text: `_${data.org_name}_  ·  top horses this week` },
     },
     { type: 'divider' },
-    categorySection('🏆  Most Wins', data.horses, 'wins', 'wins'),
-    categorySection('🥈  Most Podiums', data.horses, 'podiums', 'podiums'),
-    categorySection('⭐  Most XP', data.horses, 'xp', 'XP'),
+    categorySection('Most Wins', data.horses, 'wins', 'wins'),
+    { type: 'divider' },
+    categorySection('Most Podiums', data.horses, 'podiums', 'podiums'),
+    { type: 'divider' },
+    categorySection('Most XP', data.horses, 'xp', 'XP'),
   ];
 
   return {

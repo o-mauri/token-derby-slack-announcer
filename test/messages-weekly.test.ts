@@ -40,6 +40,25 @@ describe('buildWeeklyLeaderboardMessage', () => {
     expect(xpSection.split('\n').find(l => l.includes('1.'))).toContain('*C*');
   });
 
+  it('formats headings bold with no emoji and a blank line before the leaderboard', () => {
+    const msg = buildWeeklyLeaderboardMessage(resp([h('A', 3, 2, 10)]));
+    const winsSection = (msg.blocks.find((b: any) => b.type === 'section' && b.text?.text?.includes('Most Wins')) as any).text.text as string;
+    // heading is bold, on its own line, with a blank line before the first entry
+    expect(winsSection.startsWith('*Most Wins*\n\n')).toBe(true);
+    // no emoji adjacent to the heading (🏆/🥈/⭐ removed); medal emoji still appear on rank lines
+    expect(winsSection).not.toContain('🏆');
+    expect(winsSection.split('\n\n')[0]).toBe('*Most Wins*');
+  });
+
+  it('places a divider between each stat section', () => {
+    const msg = buildWeeklyLeaderboardMessage(resp([h('A', 3, 2, 10)]));
+    const types = msg.blocks.map((b: any) => b.type);
+    // header, section(subtitle), divider, section(wins), divider, section(podiums), divider, section(xp)
+    expect(types).toEqual([
+      'header', 'section', 'divider', 'section', 'divider', 'section', 'divider', 'section',
+    ]);
+  });
+
   it('handles fewer than 5 horses without padding', () => {
     const msg = buildWeeklyLeaderboardMessage(resp([h('Solo', 3, 3, 30), h('Duo', 1, 1, 10)]));
     const winsSection = (msg.blocks.find((b: any) => b.type === 'section' && b.text?.text?.includes('Most Wins')) as any).text.text as string;
