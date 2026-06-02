@@ -37,7 +37,29 @@ describe('buildWeeklyLeaderboardMessage', () => {
 
     const xpSection = (msg.blocks.find((b: any) => b.type === 'section' && b.text?.text?.includes('Most XP')) as any).text.text as string;
     expect(xpSection.indexOf('*C*')).toBeGreaterThan(-1);
-    expect(xpSection.split('\n').find(l => l.includes('1.'))).toContain('*C*');
+    // top horse C sits on the gold-medal line, which carries the medal only (no "1.")
+    const xpFirst = xpSection.split('\n').find(l => l.startsWith('🥇'));
+    expect(xpFirst).toContain('*C*');
+    expect(xpFirst).not.toContain('1.');
+    // ranks 4 and 5 keep their numbered prefix
+    expect(xpSection).toContain('4.');
+    expect(xpSection).toContain('5.');
+  });
+
+  it('shows medals only for the top 3 and numbers for 4th/5th', () => {
+    const horses = [
+      h('A', 10, 0, 0), h('B', 9, 0, 0), h('C', 8, 0, 0), h('D', 7, 0, 0), h('E', 6, 0, 0),
+    ];
+    const winsSection = (buildWeeklyLeaderboardMessage(resp(horses)).blocks
+      .find((b: any) => b.type === 'section' && b.text?.text?.includes('Most Wins')) as any).text.text as string;
+    const entryLines = winsSection.split('\n').filter(l => l.includes('*A*') || l.includes('*B*') || l.includes('*C*') || l.includes('*D*') || l.includes('*E*'));
+    expect(entryLines[0]).toBe('🥇  *A*  10 wins  ·  AOwner');
+    expect(entryLines[1]!.startsWith('🥈')).toBe(true);
+    expect(entryLines[2]!.startsWith('🥉')).toBe(true);
+    expect(entryLines[3]).toBe('4.  *D*  7 wins  ·  DOwner');
+    expect(entryLines[4]).toBe('5.  *E*  6 wins  ·  EOwner');
+    // no numeric prefix on the medal lines
+    expect(entryLines[0]).not.toContain('1.');
   });
 
   it('formats headings bold with no emoji and a blank line before the leaderboard', () => {

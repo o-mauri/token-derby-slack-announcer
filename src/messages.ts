@@ -126,7 +126,9 @@ function categorySection(title: string, horses: LeaderboardEntry[], metric: Metr
   const top = rankBy(horses, metric).slice(0, 5);
   const lines = top.map((h, i) => {
     const rank = i + 1;
-    return `${rankPrefix(rank)}  ${rank}.  *${h.name}*  ${h[metric]} ${unit}  ·  ${h.owner_name}`;
+    // Top 3 get a medal only; 4th/5th get a numbered prefix.
+    const label = rank <= 3 ? MEDALS[rank - 1]! : `${rank}.`;
+    return `${label}  *${h.name}*  ${h[metric]} ${unit}  ·  ${h.owner_name}`;
   });
   return {
     type: 'section',
