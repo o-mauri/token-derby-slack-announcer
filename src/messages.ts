@@ -144,7 +144,7 @@ export function buildWeeklyLeaderboardMessage(data: GetOrgLeaderboardResponse): 
     },
     {
       type: 'section',
-      text: { type: 'mrkdwn', text: `_${data.org_name}_  ·  top horses this week` },
+      text: { type: 'mrkdwn', text: `_${data.org_name}_  ·  all-time top horses` },
     },
     { type: 'divider' },
     categorySection('Most Wins', data.horses, 'wins', 'wins'),
