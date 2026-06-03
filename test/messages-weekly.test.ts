@@ -96,6 +96,16 @@ describe('buildWeeklyLeaderboardMessage', () => {
     expect(subtitle).not.toContain('this week');
   });
 
+  it('singularises the unit for a count of 1', () => {
+    const msg = buildWeeklyLeaderboardMessage(resp([h('Solo', 1, 1, 1)]));
+    const winsSection = (msg.blocks.find((b: any) => b.type === 'section' && b.text?.text?.includes('Most Wins')) as any).text.text as string;
+    const podSection = (msg.blocks.find((b: any) => b.type === 'section' && b.text?.text?.includes('Most Podiums')) as any).text.text as string;
+    expect(winsSection).toContain('1 win  ·');
+    expect(winsSection).not.toContain('1 wins');
+    expect(podSection).toContain('1 podium  ·');
+    expect(podSection).not.toContain('1 podiums');
+  });
+
   it('breaks win ties by podiums then xp then name', () => {
     const msg = buildWeeklyLeaderboardMessage(resp([
       h('Zed', 5, 1, 10),

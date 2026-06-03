@@ -128,7 +128,11 @@ function categorySection(title: string, horses: LeaderboardEntry[], metric: Metr
     const rank = i + 1;
     // Top 3 get a medal only; 4th/5th get a numbered prefix.
     const label = rank <= 3 ? MEDALS[rank - 1]! : `${rank}.`;
-    return `${label}  *${h.name}*  ${h[metric]} ${unit}  ·  ${h.owner_name}`;
+    const value = h[metric];
+    // Singularise the unit for a count of 1 ("1 win", not "1 wins"). "XP" has no
+    // trailing "s" so it is unaffected.
+    const u = value === 1 ? unit.replace(/s$/, '') : unit;
+    return `${label}  *${h.name}*  ${value} ${u}  ·  ${h.owner_name}`;
   });
   return {
     type: 'section',
